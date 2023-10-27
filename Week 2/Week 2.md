@@ -18,10 +18,203 @@ All datasets exist within the pizza_runner database schema - be sure to include 
 
 ## 🐱Questions and Solutions 🐶
 ### Section A: Pizza Metrics 🍕
-### **1. How many pizzas were ordered?
+### ***1. How many pizzas were ordered?***
 ````
 select
   count(order_id) as pizza_ordered
 from
-  customer_orders
+  customer_orders_temp
 ````
+***Answer***
+|pizza_ordered|
+|-|
+|14|
+
+### ***2. How many unique customer orders were made?***
+````
+select
+  count(distinct order_id) as unique_order
+from
+  customer_orders_temp
+````
+***Answer***
+|unique_order|
+|-|
+|10|
+
+### ***3. How many successful orders were delivered by each runner?***
+````
+select
+  runner_id,
+  count(order_id) as successful_order
+from
+  runner_orders_temp
+where
+  cancellation is null
+group by
+  runner_id
+````
+***Answer***
+|runner_id|	successful_order|
+|-|-|
+|1	|4|
+|2	|3|
+|3	|1|
+
+### ***4. How many of each type of pizza was delivered?***
+````
+select
+  pizza_name,
+  count(cot.order_id) as type_pizza_delivered
+from
+  customer_orders_temp as cot
+join
+  runner_orders_temp as rot on rot.order_id = cot.order_id
+join
+  pizza_names as pn on pn.pizza_id = cot.pizza_id
+where
+  cancellation is null
+group by
+  pizza_name
+````
+***Answer***
+|pizza_name	|type_pizza_delivered|
+|-|-|
+|Meatlovers|	9|
+|Vegetarian|	3|
+
+### ***5. How many Vegetarian and Meatlovers were ordered by each customer?***
+````
+select
+  customer_id,
+  pizza_name,
+  count(pizza_name) as ordered_by_customer
+from
+  pizza_names as pn
+join
+  customer_orders_temp as cot on cot.pizza_id = pn.pizza_id
+group by
+  pizza_name,
+  customer_id
+````
+|customer_id|	pizza_name	|ordered_by_customer|
+|-|-|-|
+|101	|Meatlovers|	2|
+|102	|Meatlovers	|2|
+|102	|Vegetarian|	1|
+|103	|Meatlovers	|3|
+|103	|Vegetarian	|1|
+|104	|Meatlovers|	3|
+|101	|Vegetarian|	1|
+|105	|Vegetarian|	1|
+
+### ***6. What was the maximum number of pizzas delivered in a single order?***
+````
+select
+  order_id,
+  count(pizza_id) as max_pizza_ordered
+from
+  customer_orders_temp
+group by
+  order_id
+````
+***Answer***
+|order_id	|max_pizza_ordered|
+|-|-|
+|1	|1|
+|2|	1|
+|3	|2|
+|4	|3|
+|5	|1|
+|6|	1|
+|7|	1|
+|8|	1|
+|9|	1|
+|10|	2|
+
+### ***7. For each customer, how many delivered pizzas had at least 1 change and how many had no changes?***
+````
+select
+  customer_id,
+  sum(
+    case when exclusions <> '' or extras <> '' then 1
+    else 0
+    end) as with_change,
+  sum(
+    case when exclusions = '' or extras = '' then 1
+    else 0
+    end) as no_change
+from
+  customer_orders_temp as cot
+join
+  runner_orders_temp as rot on rot.order_id = cot.order_id
+where
+  cancellation is null
+group by
+  customer_id
+````
+***Answer***
+|customer_id	|with_change|	no_change|
+|-|-|-|
+|101|	0	|2|
+|102|	0	|2|
+|103	|3|	3|
+|104	|1|	0|
+|105	|0	|0|
+
+### ***8. How many pizzas were delivered that had both exclusions and extras?***
+````
+select
+  count(*) as pizza_had_exclusions_extras
+from
+  customer_orders_temp as co
+join
+  runner_orders_tempt as rot on cot.order_id = rot.order_id
+where rot.cancellation is null
+and exclusions <> ''
+and extras <> ''
+````
+***Answer***
+|pizza_had_exclusions_extras|
+|-|
+|1|
+
+### ***9. What was the total volume of pizzas ordered for each hour of the day?***
+````
+select
+  hour(order_time) as hour_of_day,
+  count(*) as num_pizzas_ordered
+from
+  customer_orders
+group by
+  hour_of_day
+````
+***Answer***
+|hour_of_day|	num_pizzas_ordered|
+|-|-|
+|18	|3|
+|19|	1|
+|23|	3|
+|13|	3|
+|21	|3|
+|11	|1|
+
+### ***10. What was the volume of orders for each day of the week?***
+````
+select 
+  dayname(order_time) as day, 
+  count(*) as ordered_pizzas 
+from 
+  customer_orders_temp 
+group by 
+  dayname(order_time)
+````
+***Answer***
+|day	|ordered_pizzas|
+|-|-|
+|Wednesday	|5|
+|Thursday	|3|
+|Saturday	|5|
+|Friday	|1|
+
+--------------------------------------- 🥘Take a break 🧋---------------------------------------
