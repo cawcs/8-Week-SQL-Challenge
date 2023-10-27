@@ -11,7 +11,8 @@
 _sales_ \
 _menu_ \
 _members_ 
-
+## Data schema
+![Danny Diner](https://github.com/cawcs/8-Week-SQL-Challenge/assets/147532517/b3b1ec3d-ba29-47c9-ac24-8798ef13f117)
 
 ## ❓Questions and Solutions ✔️
 ### **1. What is the total amount each customer spent at the restaurant?** :octocat:
