@@ -218,3 +218,44 @@ group by
 |Friday	|1|
 
 --------------------------------------- 🥘Take a break 🧋---------------------------------------
+### Section B: Runner and Customer Experience
+### ***1. How many runners signed up for each 1 week period? (i.e. week starts 2021-01-01)***
+````
+%%sql
+SELECT
+  WEEK(registration_date) AS week,
+	COUNT(runner_id) AS runner_count
+FROM
+  runners
+GROUP BY
+  week;
+````
+***Answer***
+|week|	runner_count|
+|-|-|
+|0|	1|
+|1|	2|
+|2|	1|
+
+### ***2. What was the average time in minutes it took for each runner to arrive at the Pizza Runner HQ to pickup the order?***
+````
+select  
+  runner_id,
+  round(avg(timestampdiff(minute,order_time, pickup_time))) as avg_minutes_to_pickup 
+from 
+  runner_orders_temp as rot 
+  join customer_orders_temp as cot
+on rot.order_id = cot.order_id 
+where 
+  pickup_time is not null
+group by runner_id
+````
+|runner_id|	avg_minutes_to_pickup|
+|-|-|
+|1	|15|
+|2|	23|
+|3	|10|
+
+### ***2. Is there any relationship between the number of pizzas and how long the order takes to prepare?***
+````
+
